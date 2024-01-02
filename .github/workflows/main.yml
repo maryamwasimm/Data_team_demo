@@ -28,7 +28,9 @@ jobs:
           context: ./
           push: true
           dockerfile: ./Dockerfile
-          tags: ${{ env.AWS_ECR_REPOSITORY }}:latest
+      - name: Push Docker Image to ECR
+        run: docker push 457865735160.dkr.ecr.us-east-1.amazonaws.com/data:${{ github.sha }}
+
   deploy:
     needs: build
     runs-on: ubuntu-latest

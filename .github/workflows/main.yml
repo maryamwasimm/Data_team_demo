@@ -1,4 +1,4 @@
-name: Build on DockerHub and Deploy to AWS
+name: Build and Deploy to EC2
 on:
   push:
     branches:
@@ -7,51 +7,30 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_ECR_REPOSITORY: data
   AWS_ACCOUNT_ID: 457865735160
   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
+
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Docker Login to ECR
-        run: |
-          aws ecr get-login-password --region ${{ env.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin 457865735160.dkr.ecr.us-east-1.amazonaws.com
 
-      - name: Build and push Docker image to ECR
-        uses: docker/build-push-action@v2
-        with:
-          context: ./
-          push: true
-          dockerfile: ./Dockerfile
-          tags: 457865735160.dkr.ecr.us-east-1.amazonaws.com/data:latest
-          additional_args: '--retry 5 --retry-delay 4s --retry-max-time 120s'
+      - name: Build Docker image
+        run: |
+          docker build -t your-registry/your-image:latest .
+      
+      - name: Copy Docker image to EC2
+        run: |
+          scp -i key.pem your-registry/your-image:latest ec2-user@184.73.95.168:~
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set permissions for private key
+      - name: SSH into EC2 and deploy
         run: |
-          echo "${{ env.AWS_PRIVATE_KEY }}" > key.pem
-          chmod 600 key.pem
-      - name: Authenticate with AWS ECR
-        run: >
-          echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} | docker login -u AWS --password-stdin https://${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_DEFAULT_REGION }}.amazonaws.com
-      - name: Pull Docker image from ECR
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@184.73.95.168 'sudo docker pull ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_ECR_REPOSITORY}:latest'
-      - name: Stop running container
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@184.73.95.168 'sudo docker stop cddemo || true'
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@184.73.95.168 'sudo docker rm cddemo || true'
-      - name: Run new container
-        run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@184.73.95.168 'sudo docker run -d --name cddemo -p 80:3000 ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${AWS_ECR_REPOSITORY}:latest'
+          ssh -i key.pem ec2-user@184.73.95.168 'docker load -i ~/your-image_latest.tar'
+          ssh -i key.pem ec2-user@184.73.95.168 'docker run -d -p 80:3000 your-registry/your-image:latest'

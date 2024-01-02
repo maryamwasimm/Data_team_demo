@@ -28,8 +28,7 @@ jobs:
           context: ./
           push: true
           dockerfile: ./Dockerfile
-      - name: Push Docker Image to ECR
-        run: docker push 457865735160.dkr.ecr.us-east-1.amazonaws.com/data:latest
+          tags: 457865735160.dkr.ecr.us-east-1.amazonaws.com/data:latest
 
 
   deploy:

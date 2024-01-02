@@ -29,7 +29,7 @@ jobs:
           push: true
           dockerfile: ./Dockerfile
           tags: 457865735160.dkr.ecr.us-east-1.amazonaws.com/data:latest
-
+          additional_args: '--retry 5 --retry-delay 4s --retry-max-time 120s'
 
   deploy:
     needs: build

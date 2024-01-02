@@ -7,7 +7,7 @@ env:
   AWS_DEFAULT_REGION: us-east-1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_ECR_REPOSITORY: public.ecr.aws/y2r0m3h7/data
+  AWS_ECR_REPOSITORY: data
   AWS_ACCOUNT_ID: 457865735160
   AWS_PRIVATE_KEY: ${{ secrets.AWS_PRIVATE_KEY }}
 jobs:

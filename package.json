@@ -1,0 +1,11 @@
+{
+ "name": "cd-demo",
+ "version": "1.0.0",
+ "description": "Continuous Deployment with GitHub Actions, DockerHub, and AWS EC2 tutorial for beginners",
+ "scripts": {
+ "start": "node app.js"
+ },
+ "dependencies": {
+ "express": "⁴.17.1"
+ }
+}

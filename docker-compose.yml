@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  app:
+    image: your-dockerhub-username/cddemo:latest
+    container_name: cddemo
+    restart: always
+    ports:
+      - "80:3000"
+    environment:
+      NODE_ENV: production

@@ -47,7 +47,7 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         SSH_USERNAME: ec2_user
-        EC2_PUBLIC_IP: 
+        EC2_PUBLIC_IP: 34.200.230.39
       run: |
         # Configure SSH
         mkdir -p ~/.ssh
@@ -56,6 +56,6 @@ jobs:
         ssh-keyscan -H $EC2_PUBLIC_IP >> ~/.ssh/known_hosts
 
         # Copy and execute deployment script
-        scp -r ./path/to/your/application $SSH_USERNAME@$EC2_PUBLIC_IP:/path/on/ec2
+        scp -r ./* $SSH_USERNAME@$EC2_PUBLIC_IP:~
         ssh $SSH_USERNAME@$EC2_PUBLIC_IP 'bash -s' < ./path/to/your/deployment-script.sh
         

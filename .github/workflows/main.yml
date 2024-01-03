@@ -41,4 +41,21 @@ jobs:
         docker build -t data .
         docker tag data:latest public.ecr.aws/w5v7x7o5/data:latest
         docker push public.ecr.aws/w5v7x7o5/data:latest
+
+
+    - name: Deploy to EC2
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SSH_USERNAME: ec2_user
+        EC2_PUBLIC_IP: 
+      run: |
+        # Configure SSH
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $EC2_PUBLIC_IP >> ~/.ssh/known_hosts
+
+        # Copy and execute deployment script
+        scp -r ./path/to/your/application $SSH_USERNAME@$EC2_PUBLIC_IP:/path/on/ec2
+        ssh $SSH_USERNAME@$EC2_PUBLIC_IP 'bash -s' < ./path/to/your/deployment-script.sh
         

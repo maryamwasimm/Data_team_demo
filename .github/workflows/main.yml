@@ -15,11 +15,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Install AWS CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y awscli
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -27,10 +22,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
+      - name: Install Docker
         run: |
-          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/w5v7x7o5/data
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+
+      - name: Login to Amazon ECR
+        run: |
+          echo "${{ secrets.AWS_SECRET_ACCESS_KEY }}" | docker login -u AWS --password-stdin public.ecr.aws/w5v7x7o5/data
 
       - name: Build, tag, and push the image to Amazon ECR
         id: build-image
